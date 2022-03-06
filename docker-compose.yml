@@ -1,0 +1,60 @@
+version: '3'
+services:
+  db:
+    build: ./Database-Service
+    command: --default-authentication-plugin=mysql_native_password
+    container_name: mysqldb
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - '3500:3306'
+  myrabbitmq:
+    image: "rabbitmq:3-management"
+    hostname: my-rabbit
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+  management:
+    build: ./Management-Service
+    ports:
+      - '8081:3000'
+    volumes:
+      - ./Management-Service/src:/nodeapp/src
+    depends_on:
+      - db
+      - myrabbitmq
+    environment:
+      - DATABASE_NAME=short-url
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=123456
+      - DATABASE_HOST=db
+      - RABBITMQ_HOST=myrabbitmq
+      - RABBITMQ_PORT=5672
+      - REDIRECTION_APP_URL=http://localhost:8082
+      - APP_PORT=3000
+    restart: on-failure
+  redirection:
+    build: ./Redirection-Service
+    ports:
+      - '8082:3000'
+    volumes:
+      - ./Redirection-Service/src:/nodeapp/src
+    depends_on:
+      - myrabbitmq
+      - redis-store
+    environment:
+      - RABBITMQ_HOST=myrabbitmq
+      - RABBITMQ_PORT=5672
+      - REDIS_HOST=redis-store
+      - REDIS_PORT=6379
+      - APP_URL=http://localhost:8082/
+      - APP_PORT=3000
+    restart: on-failure
+  redis-store:
+    image: "redis:6"
+    ports:
+      - "6379:6379"
+    expose:
+      - 6379
+volumes:
+  mysql-data:

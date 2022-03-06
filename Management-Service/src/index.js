@@ -5,7 +5,7 @@ const router = express.Router();
 require('dotenv').config();
 const {Sequelize, Model, DataTypes} = require('sequelize');
 const cors = require('cors');
-const {publishToQueue} = require('./Services/MQService');
+const {publishToQueue} = require('./services/MQService');
 const Hashids = require('hashids/cjs')
 const hashids = new Hashids('Url shortener', 6)
 

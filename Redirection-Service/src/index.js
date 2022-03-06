@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 require('dotenv').config();
-const {consumeQueue} = require('./Services/MQService');
+const {consumeQueue} = require('./services/MQService');
 const {createClient} = require('redis');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());

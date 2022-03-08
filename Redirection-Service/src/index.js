@@ -55,7 +55,7 @@ app.get('/:hash', async (req, res) => {
     // If it doesn't exist, create it now with value 1 (because it's the first redirect) and let it expire in 120 seconds as specified in task
     if (!counter) {
         await client.setEx(counterKey, 120, 1)
-        return res.redirect('//' + keyHash.realUrl)
+        return res.status(301).redirect(keyHash.realUrl)
     }
     // If the counter already exists, increment it's value by one
     const newCounterValue = await client.incrBy(counterKey, 1)
@@ -64,7 +64,7 @@ app.get('/:hash', async (req, res) => {
     if (newCounterValue > 10)
         return res.status(429).json('Too many redirects');
 
-    return res.redirect('//' + keyHash.realUrl);
+    return res.status(301).redirect(keyHash.realUrl)
 })
 
 app.listen(PORT, HOST);
